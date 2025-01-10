@@ -1,0 +1,46 @@
+trigger:
+- main  # Replace with your main branch name
+
+pool:
+  name: 'notagent' # Replace with your self-hosted pool name
+
+variables:
+  pythonVersion: '3.9'  # Update to the Python version you're using
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(pythonVersion)'
+    addToPath: true
+
+- script: |
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+  displayName: 'Set up Python Environment'
+
+- script: |
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py test
+  displayName: 'Run Django Migrations and Tests'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/test-results.xml'
+  condition: succeededOrFailed()
+
+- script: |
+    python manage.py collectstatic --noinput
+  displayName: 'Collect Static Files'
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: drop
