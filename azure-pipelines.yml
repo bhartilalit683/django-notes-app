@@ -8,10 +8,7 @@ variables:
   pythonVersion: '3.9'  # Update to the Python version you're using
 
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(pythonVersion)'
-    addToPath: true
+
 
 - script: |
     python -m venv venv
