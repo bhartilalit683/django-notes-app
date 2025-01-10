@@ -22,11 +22,6 @@ steps:
     python manage.py test
   displayName: 'Run Django Migrations and Tests'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/test-results.xml'
-  condition: succeededOrFailed()
 
 - script: |
     python manage.py collectstatic --noinput
